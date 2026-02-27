@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: telegramcallbot
+    user: "${UID:-1000}:${GID:-1000}"
+    restart: unless-stopped
+    volumes:
+      - ./Storage/BotData:/app/Storage/BotData
+    working_dir: /app
