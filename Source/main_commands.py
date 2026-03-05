@@ -53,8 +53,8 @@ def call_all_members(message) -> None:
             data = json.load(file)
         chat_data = data.get(str(message.chat.id), [])
         for member_id in chat_data:
-            text += f"[\u200B](tg://user?id={member_id})"
-        bot.reply_to(message=message, text=text, parse_mode="Markdown")
+            text += f"<a href='tg://user?id={member_id}'>\u200B</a>"
+        bot.reply_to(message=message, text=text, parse_mode="HTML")
 
 
 @bot.message_handler(commands=['debug'])
@@ -85,13 +85,13 @@ def check_bot_health(message) -> None:
 
 
 @bot.message_handler(content_types=["new_chat_members"])
-def get_chat_members(message) -> None:
+def get_new_member(message) -> None:
     for member in message.new_chat_members:
         if member.is_bot:
             if member.id == bot.get_me().id:
                 text = f"WARNING:\n\nYour bot was append in new group:\n\nName: {message.chat.title}\nID: {message.chat.id})\nBy: {message.from_user.id}"
                 bot.send_message(chat_id=bot_data.OWNER_ID, text=text, parse_mode="Markdown")
-                return
+            return
         text = f"WELCOME MESSAGE:\n\nHello, [{member.full_name}](tg://user?id={member.id})!\nCheck 'start' or 'help' command!"
         bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
