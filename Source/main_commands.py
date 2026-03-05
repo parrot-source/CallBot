@@ -9,9 +9,9 @@ import json
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
-@bot.message_handler(commands=['start', 'help'])
+@bot.message_handler(commands=['help'])
 def show_help(message) -> None:
-    text = "HELP:\n\nHello, my name is 'CallBot'\nI can call members of a chat!\n\nYou can use commands:\n'in' - (to get notifications)\n'out' - (to stop notifications)\n'system' - (to check if you are in system)\n'all' - (to call members)!"
+    text = "HELP:\n\nHello, my name is 'CallBot'\nI can call members of a chat!\n\nYou can use commands:\n/in - (to get notifications)\n/out - (to stop get notifications)\n/system - (to check if you are in system)\n/all - (to call members)!"
     bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
 
@@ -63,7 +63,6 @@ def check_bot_health(message) -> None:
         return
     path = 'Source/BotData/chats.json'
     text = "DEBUG:\n\n"
-    debug_alive: bool = True
     debug_connection: bool = False
     debug_get_data_base: bool = False
     try:
@@ -78,10 +77,10 @@ def check_bot_health(message) -> None:
         text += f"ERROR: 'can't get data base'\n"
     except Exception as e:
         text += f"ERROR: '{e}'\n"
-    text += f"Alive: {debug_alive}\nConnection: {debug_connection}\nGet Data Base: {debug_get_data_base}"
+    text += f"Connection: {debug_connection}\nGet Data Base: {debug_get_data_base}"
     terminal_size = shutil.get_terminal_size().columns
     print(f"{'-'*terminal_size}\n{text}\n{'-'*terminal_size}")
-    bot.reply_to(message=message, text=text)
+    bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
 
 @bot.message_handler(content_types=["new_chat_members"])
@@ -92,7 +91,7 @@ def get_new_member(message) -> None:
                 text = f"WARNING:\n\nYour bot was append in new group:\n\nName: {message.chat.title}\nID: {message.chat.id})\nBy: {message.from_user.id}"
                 bot.send_message(chat_id=bot_data.OWNER_ID, text=text, parse_mode="Markdown")
             return
-        text = f"WELCOME MESSAGE:\n\nHello, [{member.full_name}](tg://user?id={member.id})!\nCheck 'start' or 'help' command!"
+        text = f"WELCOME MESSAGE:\n\nHello, [{member.full_name}](tg://user?id={member.id})!\nCheck /help command!"
         bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
 
