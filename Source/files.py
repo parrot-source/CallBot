@@ -2,6 +2,20 @@ from pathlib import Path
 import json
 
 
+def get_members(path: str, chat_id:int) -> list:
+    try:
+        if Path(path).exists():
+            with open(path, 'r') as file:
+                chats = json.load(file)
+            members_data = chats.get(chat_id, [])
+        else:
+            print("[ Error (Get Members) ] -> File Not Found!")
+            return
+    except Exception as e:
+        print(f"[ Error (Get Members) ] -> {e}!")
+        return
+
+
 def save_member_data(path:str, chat_id:int, member_id:int, bot_id:int) -> bool:
     try:
         if Path(path).exists():
@@ -25,7 +39,7 @@ def save_member_data(path:str, chat_id:int, member_id:int, bot_id:int) -> bool:
             Path.mkdir("Source/BotData")
             with open(path, 'w') as file:
                 json.dump({str(chat_id): [member_id]}, file, indent=4)
-            print("[ Error (Save Member Data) ] -> File Not Found!")
+            print("[ Error (Save Member Data) ] -> File Was Created!")
             return False
     except Exception as e:
         print(f"[ Error (Save Member Data) ] -> {e}")

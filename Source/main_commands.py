@@ -1,5 +1,5 @@
 from Source.Utilites.bot_utilities import bot, bot_data, check_network_connection
-from Source.files import save_member_data, delete_member_data
+from Source.files import save_member_data, delete_member_data, get_members
 from pathlib import Path
 import logging
 import shutil
@@ -36,22 +36,18 @@ def check_member(message) -> None:
     if is_group(message=message):
         text = "You are not in system!"
         path = "Source/BotData/chats.json"
-        if Path(path).exists():
-            with open(path, 'r') as file:
-                data = json.load(file)
-            chat_data = data.get(str(message.chat.id), [])
-            if message.from_user.id in chat_data:
-                text = "You are in system!"
-            bot.reply_to(message=message, text=text, parse_mode="Markdown")
+        chat_data = get_members(path=path, chat_id=str(message.chat.id))
+        if message.from_user.id in chat_data:
+            text = "You are in system!"
+        bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
 
 @bot.message_handler(commands=['all'])
 def call_all_members(message) -> None:
     if is_group(message=message):
         text = "Call Members!"
-        with open('Source/BotData/chats.json', 'r') as file:
-            data = json.load(file)
-        chat_data = data.get(str(message.chat.id), [])
+        path = "Source/BotData/chats.json"
+        chat_data = get_members(path=path, chat_id=str(message.chat.id))
         for member_id in chat_data:
             text += f"<a href='tg://user?id={member_id}'>\u200B</a>"
         bot.reply_to(message=message, text=text, parse_mode="HTML")
@@ -64,20 +60,20 @@ def check_bot_health(message) -> None:
     path = 'Source/BotData/chats.json'
     text = "DEBUG:\n\n"
     debug_connection: bool = False
-    debug_get_data_base: bool = False
+    debug_get_chat_data: bool = False
     try:
         debug_connection = check_network_connection(timeout=10)
         if Path(path).exists():
             with open(path, 'r') as file:
-                data = json.load(file)
-                debug_get_data_base = True
+                data = get_members(path=path, chat_id=str(message.chat.id))
+            debug_chat_data = True if data else False
         else:
             raise FileNotFoundError
     except FileNotFoundError:
         text += f"ERROR: 'can't get data base'\n"
     except Exception as e:
         text += f"ERROR: '{e}'\n"
-    text += f"Connection: {debug_connection}\nGet Data Base: {debug_get_data_base}"
+    text += f"Connection: {debug_connection}\nGet Chat Data: {debug_get_chat_data}"
     terminal_size = shutil.get_terminal_size().columns
     print(f"{'-'*terminal_size}\n{text}\n{'-'*terminal_size}")
     bot.reply_to(message=message, text=text, parse_mode="Markdown")
