@@ -3,7 +3,9 @@ from Source.files import save_member_data, delete_member_data, get_members
 from pathlib import Path
 import logging
 import shutil
-import json
+
+
+CHAT_PATH = "Source/BotData/chats.json"
 
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -19,7 +21,7 @@ def show_help(message) -> None:
 def add_member(message) -> None:
     text = "Now you will be notified!"
     if is_group(message=message):
-        if save_member_data(path="Source/BotData/chats.json", chat_id=message.chat.id, member_id=message.from_user.id, bot_id=bot.get_me().id):
+        if save_member_data(path=CHAT_PATH, chat_id=message.chat.id, member_id=message.from_user.id):
             bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
 
@@ -27,7 +29,7 @@ def add_member(message) -> None:
 def remove_member(message) -> None:
     text = "Now you will not be notified!"
     if is_group(message=message):
-        if delete_member_data(path="Source/BotData/chats.json", chat_id=message.chat.id, member_id=message.from_user.id):
+        if delete_member_data(path=CHAT_PATH, chat_id=message.chat.id, member_id=message.from_user.id):
             bot.reply_to(message=message, text=text, parse_mode="Markdown")
 
 
@@ -35,8 +37,7 @@ def remove_member(message) -> None:
 def check_member(message) -> None:
     if is_group(message=message):
         text = "You are not in system!"
-        path = "Source/BotData/chats.json"
-        chat_data = get_members(path=path, chat_id=str(message.chat.id))
+        chat_data = get_members(path=CHAT_PATH, chat_id=str(message.chat.id))
         if message.from_user.id in chat_data:
             text = "You are in system!"
         bot.reply_to(message=message, text=text, parse_mode="Markdown")
@@ -45,12 +46,15 @@ def check_member(message) -> None:
 @bot.message_handler(commands=['all'])
 def call_all_members(message) -> None:
     if is_group(message=message):
-        text = "Call Members!"
-        path = "Source/BotData/chats.json"
-        chat_data = get_members(path=path, chat_id=str(message.chat.id))
-        for member_id in chat_data:
-            text += f"<a href='tg://user?id={member_id}'>\u200B</a>"
-        bot.reply_to(message=message, text=text, parse_mode="HTML")
+        text = "Call Member(s)!"
+        chat_data = get_members(path=CHAT_PATH, chat_id=str(message.chat.id))
+        for i in range(0, len(chat_data), 5):
+            member_range = chat_data[i:i+5]
+            for member_id in member_range:
+                text += f"<a href='tg://user?id={member_id}'>\u200B</a>"
+            text += f"\nMember Counter: {len(member_range)}"
+            bot.reply_to(message=message, text=text, parse_mode="HTML")
+            text = "Call Member(s)!"
 
 
 @bot.message_handler(commands=['debug'])

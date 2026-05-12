@@ -7,7 +7,7 @@ def get_members(path: str, chat_id:int) -> list:
         if Path(path).exists():
             with open(path, 'r') as file:
                 chats = json.load(file)
-            members_data = chats.get(chat_id, [])
+            return chats.get(chat_id, [])
         else:
             print("[ Error (Get Members) ] -> File Not Found!")
             return
@@ -16,7 +16,7 @@ def get_members(path: str, chat_id:int) -> list:
         return
 
 
-def save_member_data(path:str, chat_id:int, member_id:int, bot_id:int) -> bool:
+def save_member_data(path:str, chat_id:int, member_id:int) -> bool:
     try:
         if Path(path).exists():
             with open(path, 'r') as file:
@@ -36,7 +36,9 @@ def save_member_data(path:str, chat_id:int, member_id:int, bot_id:int) -> bool:
                     json.dump(data, file, indent=4)
                 return True
         else:
-            Path.mkdir("Source/BotData")
+            data_path = "Source/BotData"
+            if not Path(data_path).exists():
+                Path.mkdir(data_path)
             with open(path, 'w') as file:
                 json.dump({str(chat_id): [member_id]}, file, indent=4)
             print("[ Error (Save Member Data) ] -> File Was Created!")
